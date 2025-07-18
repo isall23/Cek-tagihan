@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cek Tagihan dengan Autocomplete</title>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: sans-serif;
+            background: linear-gradient(to right, #d0eaff, #f0f9ff);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 60px;
+            height: 100vh;
+            margin: 0;
+        }
+        input {
+            padding: 12px;
+            font-size: 18px;
+            width: 280px;
+            border-radius: 8px;
+            border: 1px solid #aaa;
+        }
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 5px 0 15px;
+  width: 280px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: white;
+  max-height: 300px; /* ← dari 150 jadi 300 */
+  overflow-y: auto;
+        }
+        ul li {
+            padding: 10px;
+            cursor: pointer;
+        }
+        ul li:hover {
+            background-color: #e0f0ff;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        #hasil {
+            margin-top: 30px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>🔍 Cek Tagihan Pelanggan DUOZI NET</h2>
+
+    <input type="text" id="nama" placeholder="Ketik nama...">
+    <ul id="suggestions"></ul>
+    <button onclick="cekTagihan()">Cek Tagihan</button>
+
+    <div id="hasil"></div>
+
+    <script>
+        const dataTagihan = {
+"dara muda": "Rp.125.000 <br> Berlangganan Sejak <mark> 04 Desember 2023</mark>",
+"paisal": "Rp.0 <br> Berlangganan Sejak <mark> 04 Desember 2023</mark>",
+"saeni": "Rp.150.000 <br> Berlangganan Sejak <mark> 06 Desember 2023</mark>",
+"boled": "Rp.150.000 <br> Berlangganan Sejak <mark> 07 Desember 2023</mark>",
+"dea bi nun": "Rp.125.000 <br> Berlangganan Sejak <mark> 07 Desember 2023</mark>",
+"opett": "Rp.0 <br> Berlangganan Sejak <mark> 07 Desember 2023</mark>",
+"jawir": "Rp.150.000 <br> Berlangganan Sejak <mark> 09 Desember 2023</mark>",
+"karyati": "Rp.150.000 <br> Berlangganan Sejak <mark> 09 Desember 2023</mark>",
+"dilah": "Rp.150.000 <br> Berlangganan Sejak <mark> 09 Desember 2023</mark>",
+"pak lebe": "Rp.150.000 <br> Berlangganan Sejak <mark> 09 Desember 2023</mark>",
+"dewi": "Rp.150.000 <br> Berlangganan Sejak <mark> 13 Desember 2023</mark>",
+"untung": "Rp.150.000 <br> Berlangganan Sejak <mark> 13 Desember 2023</mark>",
+"ratna": "Rp.200.000 <br> Berlangganan Sejak <mark> 13 Desember 2023</mark>",
+"diana": "Rp.150.000 <br> Berlangganan Sejak <mark> 13 Desember 2023</mark>",
+"sugi": "Rp.150.000 <br> Berlangganan Sejak <mark> 16 Desember 2023</mark>",
+"kuin": "Rp.150.000 <br> Berlangganan Sejak <mark> 17 Desember 2023</mark>",
+"hilman": "Rp.150.000 <br> Berlangganan Sejak <mark> 16 Desember 2023</mark>",
+"kliwon": "Rp.150.000 <br> Berlangganan Sejak <mark> 17 Desember 2023</mark>",
+"seja": "Rp.150.000 <br> Berlangganan Sejak <mark> 17 Desember 2023</mark>",
+"warun": "Rp.150.000 <br> Berlangganan Sejak <mark> 17 Desember 2023</mark>",
+"waidin": "Rp.150.000 <br> Berlangganan Sejak <mark> 18 Desember 2023</mark>",
+"gito": "Rp.150.000 <br> Berlangganan Sejak <mark> 18 Desember 2023</mark>",
+"oni": "Rp.150.000 <br> Berlangganan Sejak <mark> 18 Desember 2023</mark>",
+"budiman": "Rp.150.000 <br> Berlangganan Sejak <mark> 20 Desember 2023</mark>",
+"endang": "Rp.150.000 <br> Berlangganan Sejak <mark> 22 Desember 2023</mark>",
+"rehan": "Rp.150.000 <br> Berlangganan Sejak <mark> 23 Desember 2023</mark>",
+"selvi": "Rp.150.000 <br> Berlangganan Sejak <mark> 23 Desember 2023</mark>",
+"rehan rt6": "Rp.150.000 <br> Berlangganan Sejak <mark> 24 Desember 2023</mark>",
+"jarudin": "Rp.150.000 <br> Berlangganan Sejak <mark> 26 Desember 2023</mark>",
+"yogi": "Rp.150.000 <br> Berlangganan Sejak <mark> 25 Desember 2023</mark>",
+"rouf": "Rp.150.000 <br> Berlangganan Sejak <mark> 25 Desember 2023</mark>",
+"kaji fatimah": "Rp.150.000 <br> Berlangganan Sejak <mark> 26 Desember 2023</mark>",
+"tawar": "Rp.150.000 <br> Berlangganan Sejak <mark> 30 Desember 2023</mark>",
+"uyyi": "Rp.150.000 <br> Berlangganan Sejak <mark> 30 Desember 2023</mark>",
+"bakhri": "Rp.150.000 <br> Berlangganan Sejak <mark> 01 Januari 2023</mark>",
+"apri": "Rp.150.000 <br> Berlangganan Sejak <mark> 30 Januari 2024</mark>",
+"rajak": "Rp.150.000 <br> Berlangganan Sejak <mark> 01 Januari 2024</mark>",
+"tarini": "Rp.0 <br> Berlangganan Sejak <mark> 01 Januari 2024</mark>",
+"eka": "Rp.150.000 <br> Berlangganan Sejak <mark> 03 Januari 2024</mark>",
+"mukhroni": "Rp.150.000 <br> Berlangganan Sejak <mark> 03 Januari 2024</mark>",
+"najwa": "Rp.0 <br> Berlangganan Sejak <mark> 05 Januari 2024</mark>",
+"genma": "Rp.150.000 <br> Berlangganan Sejak <mark> 07 Januari 2024</mark>",
+"parjo": "Rp.125.000 <br> Berlangganan Sejak <mark> 10 Januari 2024</mark>",
+"karudin": "Rp.150.000 <br> Berlangganan Sejak <mark> 13 Januari 2024</mark>",
+"tussarem": "Rp.150.000 <br> Berlangganan Sejak <mark> 17 Januari 2024</mark>",
+"markas": "Rp.0 <br> Berlangganan Sejak <mark> 17 Januari 2024</mark>",
+"rinto": "Rp.150.000 <br> Berlangganan Sejak <mark> 18 Januari 2024</mark>",
+"wartono": "Rp.150.000 <br> Berlangganan Sejak <mark> 20 Januari 2024</mark>",
+"suwar": "Rp.150.000 <br> Berlangganan Sejak <mark> 20 Januari 2024</mark>",
+"cassini": "Rp.150.000 <br> Berlangganan Sejak <mark> 23 Januari 2024</mark>",
+"dariyah": "Rp.150.000 <br> Berlangganan Sejak <mark> 27 Januari 2024</mark>",
+"tarmudi": "Rp.180.000 <br> Berlangganan Sejak <mark> 28 Januari 2024</mark>",
+"tikah": "Rp.180.000 <br> Berlangganan Sejak <mark> 01 Februari 2024</mark>",
+"sri": "Rp.180.000 <br> Berlangganan Sejak <mark> 01 Februari 2024</mark>",
+"alfiansyah": "Rp.180.000 <br> Berlangganan Sejak <mark> 01 Februari 2024</mark>",
+"wibowo": "Rp.200.000 <br> Berlangganan Sejak <mark> 31 Januari 2024</mark>",
+"bowo": "Rp.150.000 <br> Berlangganan Sejak <mark> 31 Januari 2024</mark>",
+"salsa": "Rp.180.000 <br> Berlangganan Sejak <mark> 01 Februari 2024</mark>",
+"rudi": "Rp.180.000 <br> Berlangganan Sejak <mark> 01 Februari 2024</mark>",
+"lintang": "Rp.180.000 <br> Berlangganan Sejak <mark> 01 Februari 2024</mark>",
+"shobirin": "Rp.150.000 <br> Berlangganan Sejak <mark> 02 Februari 2024</mark>",
+"afif": "Rp.150.000 <br> Berlangganan Sejak <mark> 02 Februari 2024</mark>",
+"fifah": "Rp.180.000 <br> Berlangganan Sejak <mark> 09 Februari 2024</mark>",
+"anindya": "Rp.180.000 <br> Berlangganan Sejak <mark> 09 Februari 2024</mark>",
+"fariz": "Rp.180.000 <br> Berlangganan Sejak <mark> 09 Februari 2024</mark>",
+"miaaa": "Rp.180.000 <br> Berlangganan Sejak <mark> 10 Februari 2024</mark>",
+"japra": "Rp.150.000 <br> Berlangganan Sejak <mark> 12 Februari 2024</mark>",
+"coki": "Rp.150.000 <br> Berlangganan Sejak <mark> 12 Februari 2024</mark>",
+"bokir": "Rp.180.000 <br> Berlangganan Sejak <mark> 12 Februari 2024</mark>",
+"geper": "Rp.150.000 <br> Berlangganan Sejak <mark> 12 Februari 2024</mark>",
+"pikoh": "Rp.180.000 <br> Berlangganan Sejak <mark> 12 Februari 2024</mark>",
+"rio": "Rp.180.000 <br> Berlangganan Sejak <mark> 12 Februari 2024</mark>",
+"japari": "Rp.180.000 <br> Berlangganan Sejak <mark> 13 Februari 2024</mark>",
+"bedi": "Rp.180.000 <br> Berlangganan Sejak <mark> 13 Februari 2024</mark>",
+"karto": "Rp.180.000 <br> Berlangganan Sejak <mark> 13 Februari 2024</mark>",
+"inayah": "Rp.180.000 <br> Berlangganan Sejak <mark> 14 Februari 2024</mark>",
+"waan": "Rp.180.000 <br> Berlangganan Sejak <mark> 14 Februari 2024</mark>",
+"nurbayah": "Rp.180.000 <br> Berlangganan Sejak <mark> 14 Februari 2024</mark>",
+"agus": "Rp.180.000 <br> Berlangganan Sejak <mark> 14 Februari 2024</mark>",
+"mutiara": "Rp.230.000 <br> Berlangganan Sejak <mark> 15 Februari 2024</mark>",
+"wadon": "Rp.125.000 <br> Berlangganan Sejak <mark> 15 Februari 2024</mark>",
+"dasiki": "Rp.180.000 <br> Berlangganan Sejak <mark> 15 Februari 2024</mark>",
+"wagembol": "Rp.180.000 <br> Berlangganan Sejak <mark> 16 Februari 2024</mark>",
+"tukiman": "Rp.150.000 <br> Berlangganan Sejak <mark> 16 Februari 2024</mark>",
+"darniah": "Rp.180.000 <br> Berlangganan Sejak <mark> 16 Februari 2024</mark>",
+"opi": "Rp.180.000 <br> Berlangganan Sejak <mark> 17 Februari 2024</mark>",
+"tristan": "Rp.150.000 <br> Berlangganan Sejak <mark> 18 Februari 2024</mark>",
+"mutiroh": "Rp.180.000 <br> Berlangganan Sejak <mark> 18 Februari 2024</mark>",
+"nining": "Rp.150.000 <br> Berlangganan Sejak <mark> 18 Februari 2024</mark>",
+"ulfah": "Rp.180.000 <br> Berlangganan Sejak <mark> 20 Februari 2024</mark>",
+"ulil": "Rp.180.000 <br> Berlangganan Sejak <mark> 21 Februari 2024</mark>",
+"ipuk": "Rp.180.000 <br> Berlangganan Sejak <mark> 21 Februari 2024</mark>",
+"alan": "Rp.180.000 <br> Berlangganan Sejak <mark> 22 Februari 2024</mark>",
+"darpiah": "Rp.180.000 <br> Berlangganan Sejak <mark> 22 Februari 2024</mark>",
+"mukini": "Rp.150.000 <br> Berlangganan Sejak <mark> 22 Februari 2024</mark>",
+"flores": "Rp.180.000 <br> Berlangganan Sejak <mark> 23 Februari 2024</mark>",
+"uun": "Rp.180.000 <br> Berlangganan Sejak <mark> 24 Februari 2024</mark>",
+"ruswan": "Rp.180.000 <br> Berlangganan Sejak <mark> 24 Februari 2024</mark>",
+"gunawan": "Rp.180.000 <br> Berlangganan Sejak <mark> 24 Februari 2024</mark>",
+"kajat": "Rp.150.000 <br> Berlangganan Sejak <mark> 24 Februari 2024</mark>",
+"tuti": "Rp.180.000 <br> Berlangganan Sejak <mark> 24 Februari 2024</mark>",
+"rudi selvi": "Rp.180.000 <br> Berlangganan Sejak <mark> 25 Februari 2024</mark>",
+"darojah": "Rp.150.000 <br> Berlangganan Sejak <mark> 25 Februari 2024</mark>",
+"milah": "Rp.150.000 <br> Berlangganan Sejak <mark> 26 Februari 2024</mark>",
+"carma": "Rp.150.000 <br> Berlangganan Sejak <mark> 27 Februari 2024</mark>",
+"dariah": "Rp.150.000 <br> Berlangganan Sejak <mark> 27 Februari 2024</mark>",
+"tri": "Rp.150.000 <br> Berlangganan Sejak <mark> 02 Maret 2024</mark>",
+"snang": "Rp.150.000 <br> Berlangganan Sejak <mark> 02 Maret 2024</mark>",
+"reno": "Rp.150.000 <br> Berlangganan Sejak <mark> 06 Maret 2024</mark>",
+"bang toyib": "Rp.150.000 <br> Berlangganan Sejak <mark> 06 Maret 2024</mark>",
+"sdn kecipir 02": "Rp.150.000 <br> Berlangganan Sejak <mark> 08 Maret 2024</mark>",
+"sukur": "Rp.150.000 <br> Berlangganan Sejak <mark> 08 Maret 2024</mark>",
+"carsih": "Rp.150.000 <br> Berlangganan Sejak <mark> 10 Maret 2024</mark>",
+"gewor": "Rp.150.000 <br> Berlangganan Sejak <mark> 12 Maret 2024</mark>",
+"iin suherni": "Rp.150.000 <br> Berlangganan Sejak <mark> 12 Maret 2024</mark>",
+"wasiroh": "Rp.150.000 <br> Berlangganan Sejak <mark> 15 Maret 2024</mark>",
+"samsudin": "Rp.150.000 <br> Berlangganan Sejak <mark> 15 Maret 2024</mark>",
+"layur": "Rp.150.000 <br> Berlangganan Sejak <mark> 20 Maret 2024</mark>",
+"ivan": "Rp.150.000 <br> Berlangganan Sejak <mark> 20 Maret 2024</mark>",
+"sureni": "Rp.150.000 <br> Berlangganan Sejak <mark> 22 Maret 2024</mark>",
+"uki": "Rp.150.000 <br> Berlangganan Sejak <mark> 22 Maret 2024</mark>",
+"bos rojat": "Rp.150.000 <br> Berlangganan Sejak <mark> 23 Maret 2024</mark>",
+"jabbar": "Rp.150.000 <br> Berlangganan Sejak <mark> 25 Maret 2024</mark>",
+"eci": "Rp.150.000 <br> Berlangganan Sejak <mark> 25 Maret 2024</mark>",
+"reva revi": "Rp.150.000 <br> Berlangganan Sejak <mark> 26 Maret 2024</mark>",
+"kayad": "Rp.150.000 <br> Berlangganan Sejak <mark> 26 Maret 2024</mark>",
+"asep": "Rp.150.000 <br> Berlangganan Sejak <mark> 01 April 2024</mark>",
+"lely": "Rp.150.000 <br> Berlangganan Sejak <mark> 01 April 2024</mark>",
+"nanang": "Rp.150.000 <br> Berlangganan Sejak <mark> 01 April 2024</mark>",
+"tinta": "Rp.150.000 <br> Berlangganan Sejak <mark> 03 April 2024</mark>",
+"sunar": "Rp.150.000 <br> Berlangganan Sejak <mark> 03 April 2024</mark>",
+"warun rt4": "Rp.150.000 <br> Berlangganan Sejak <mark> 06 April 2024</mark>",
+"cati": "Rp.200.000 <br> Berlangganan Sejak <mark> 07 April 2024</mark>",
+"osis": "Rp.170.000 <br> Berlangganan Sejak <mark> 08 April 2024</mark>",
+"nursari": "Rp.150.000 <br> Berlangganan Sejak <mark> 12 April 2024</mark>",
+"wasrem": "Rp.150.000 <br> Berlangganan Sejak <mark> 12 April 2024</mark>",
+"ust salam": "Rp.150.000 <br> Berlangganan Sejak <mark> 12 April 2024</mark>",
+"yusuf": "Rp.150.000 <br> Berlangganan Sejak <mark> 12 April 2024</mark>",
+"koyodi": "Rp.150.000 <br> Berlangganan Sejak <mark> 12 April 2024</mark>",
+"rendi": "Rp.150.000 <br> Berlangganan Sejak <mark> 12 April 2024</mark>",
+"putri": "Rp.170.000 <br> Berlangganan Sejak <mark> 14 April 2024</mark>",
+"putri wulan": "Rp.150.000 <br> Berlangganan Sejak <mark> 16 April 2024</mark>",
+"aam": "Rp.150.000 <br> Berlangganan Sejak <mark> 17 April 2024</mark>",
+"kaer": "Rp.150.000 <br> Berlangganan Sejak <mark> 18 April 2024</mark>",
+"soeripkan": "Rp.150.000 <br> Berlangganan Sejak <mark> 18 April 2024</mark>",
+"mba handa": "Rp.200.000 <br> Berlangganan Sejak <mark> 18 April 2024</mark>",
+"mila": "Rp.150.000 <br> Berlangganan Sejak <mark> 18 April 2024</mark>",
+"akrom": "Rp.150.000 <br> Berlangganan Sejak <mark> 20 April 2024</mark>",
+"sdn kecipir 01": "Rp.250.000 <br> Berlangganan Sejak <mark> 20 April 2024</mark>",
+"aisy": "Rp.150.000 <br> Berlangganan Sejak <mark> 26 April 2024</mark>",
+"wighit": "Rp.150.000 <br> Berlangganan Sejak <mark> 27 April 2024</mark>",
+"carwito": "Rp.200.000 <br> Berlangganan Sejak <mark> 27 April 2024</mark>",
+"agus bancang": "Rp.170.000 <br> Berlangganan Sejak <mark> 02 Mei 2024</mark>",
+"dasiwad": "Rp.150.000 <br> Berlangganan Sejak <mark> 02 Mei 2024</mark>",
+"wiwi": "Rp.150.000 <br> Berlangganan Sejak <mark> 03 Mei 2024</mark>",
+"darwiko": "Rp.150.000 <br> Berlangganan Sejak <mark> 03 Mei 2024</mark>",
+"sinta": "Rp.150.000 <br> Berlangganan Sejak <mark> 03 Mei 2024</mark>",
+"kamila": "Rp.150.000 <br> Berlangganan Sejak <mark> 03 Mei 2024</mark>",
+"harjo": "Rp.150.000 <br> Berlangganan Sejak <mark> 05 Mei 2024</mark>",
+"wajud": "Rp.150.000 <br> Berlangganan Sejak <mark> 05 Mei 2024</mark>",
+"rokisah": "Rp.150.000 <br> Berlangganan Sejak <mark> 06 Mei 2024</mark>",
+"dede": "Rp.150.000 <br> Berlangganan Sejak <mark> 06 Mei 2024</mark>",
+"sory": "Rp.150.000 <br> Berlangganan Sejak <mark> 07 Mei 2024</mark>",
+"yulis": "Rp.150.000 <br> Berlangganan Sejak <mark> 07 Mei 2024</mark>",
+"bakti": "Rp.150.000 <br> Berlangganan Sejak <mark> 09 Mei 2024</mark>",
+"asti": "Rp.150.000 <br> Berlangganan Sejak <mark> 09 Mei 2024</mark>",
+"toyex": "Rp.150.000 <br> Berlangganan Sejak <mark> 10 Mei 2024</mark>",
+"mirna": "Rp.150.000 <br> Berlangganan Sejak <mark> 10 Mei 2024</mark>",
+"tisah": "Rp.150.000 <br> Berlangganan Sejak <mark> 11 Mei 2024</mark>",
+"muni": "Rp.150.000 <br> Berlangganan Sejak <mark> 14 Mei 2024</mark>",
+"rusman": "Rp.150.000 <br> Berlangganan Sejak <mark> 14 Mei 2024</mark>",
+"alpin": "Rp.150.000 <br> Berlangganan Sejak <mark> 14 Mei 2024</mark>",
+"lutfi": "Rp.150.000 <br> Berlangganan Sejak <mark> 15 Mei 2024</mark>",
+"dirjo": "Rp.200.000 <br> Berlangganan Sejak <mark> 15 Mei 2024</mark>",
+"warniti": "Rp.150.000 <br> Berlangganan Sejak <mark> 15 Mei 2024</mark>",
+"kholis": "Rp.200.000 <br> Berlangganan Sejak <mark> 15 Mei 2024</mark>",
+"indri": "Rp.200.000 <br> Berlangganan Sejak <mark> 15 Mei 2024</mark>",
+"midi": "Rp.150.000 <br> Berlangganan Sejak <mark> 20 Mei 2024</mark>",
+"ruudi nayla": "Rp.170.000 <br> Berlangganan Sejak <mark> 21 Mei 2024</mark>",
+"dulkhalim": "Rp.150.000 <br> Berlangganan Sejak <mark> 21 Mei 2024</mark>",
+"filla": "Rp.150.000 <br> Berlangganan Sejak <mark> 21 Mei 2024</mark>",
+"daid": "Rp.170.000 <br> Berlangganan Sejak <mark> 21 Mei 2024</mark>",
+"jumroh": "Rp.150.000 <br> Berlangganan Sejak <mark> 22 Mei 2024</mark>",
+"dura jaya": "Rp.150.000 <br> Berlangganan Sejak <mark> 22 Mei 2024</mark>",
+"diki": "Rp.150.000 <br> Berlangganan Sejak <mark> 23 Mei 2024</mark>",
+"salsabila": "Rp.150.000 <br> Berlangganan Sejak <mark> 23 Mei 2024</mark>",
+"narto": "Rp.150.000 <br> Berlangganan Sejak <mark> 25 Mei 2024</mark>",
+"sapudin": "Rp.150.000 <br> Berlangganan Sejak <mark> 25 Mei 2024</mark>",
+"joko": "Rp.170.000 <br> Berlangganan Sejak <mark> 26 Mei 2024</mark>",
+"toiman": "Rp.170.000 <br> Berlangganan Sejak <mark> 29 Mei 2024</mark>",
+"een": "Rp.150.000 <br> Berlangganan Sejak <mark> 30 Mei 2024</mark>",
+"rusbad": "Rp.150.000 <br> Berlangganan Sejak <mark> 30 Mei 2024</mark>",
+"rina": "Rp.150.000 <br> Berlangganan Sejak <mark> 03 Juni 2024</mark>",
+"hasanah": "Rp.150.000 <br> Berlangganan Sejak <mark> 04 Juni 2024</mark>",
+"minol": "Rp.200.000 <br> Berlangganan Sejak <mark> 04 Juni 2024</mark>",
+"goplem": "Rp.150.000 <br> Berlangganan Sejak <mark> 04 Juni 2024</mark>",
+"trisna": "Rp.150.000 <br> Berlangganan Sejak <mark> 05 Juni 2024</mark>",
+"pinkan": "Rp.160.000 <br> Berlangganan Sejak <mark> 05 Juni 2024</mark>",
+"ukis": "Rp.150.000 <br> Berlangganan Sejak <mark> 05 Juni 2024</mark>",
+"fahrul": "Rp.150.000 <br> Berlangganan Sejak <mark> 05 Juni 2024</mark>",
+"alip": "Rp.150.000 <br> Berlangganan Sejak <mark> 10 Juni 2024</mark>",
+"tonari": "Rp.150.000 <br> Berlangganan Sejak <mark> 10 Juni 2024</mark>",
+"hijah": "Rp.150.000 <br> Berlangganan Sejak <mark> 10 Juni 2024</mark>",
+"rasikin": "Rp.150.000 <br> Berlangganan Sejak <mark> 10 Juni 2024</mark>",
+"sopan": "Rp.170.000 <br> Berlangganan Sejak <mark> 10 Juni 2024</mark>",
+"timbul": "Rp.150.000 <br> Berlangganan Sejak <mark> 10 Juni 2024</mark>",
+"bedod": "Rp.170.000 <br> Berlangganan Sejak <mark> 10 Juni 2024</mark>",
+"datim": "Rp.150.000 <br> Berlangganan Sejak <mark> 11 Juni 2024</mark>",
+"opi eni": "Rp.150.000 <br> Berlangganan Sejak <mark> 11 Juni 2024</mark>",
+"neneng": "Rp.150.000 <br> Berlangganan Sejak <mark> 11 Juni 2024</mark>",
+"tusnesih": "Rp.150.000 <br> Berlangganan Sejak <mark> 11 Juni 2024</mark>",
+"slamet": "Rp.150.000 <br> Berlangganan Sejak <mark> 11 Juni 2024</mark>",
+"kaliri": "Rp.170.000 <br> Berlangganan Sejak <mark> 15 Juni 2024</mark>",
+"carsum": "Rp.150.000 <br> Berlangganan Sejak <mark> 15 Juni 2024</mark>",
+"amir": "Rp.150.000 <br> Berlangganan Sejak <mark> 15 Juni 2024</mark>",
+"dewa": "Rp.150.000 <br> Berlangganan Sejak <mark> 15 Juni 2024</mark>",
+"puja": "Rp.150.000 <br> Berlangganan Sejak <mark> 15 Juni 2024</mark>",
+"triya ": "Rp.150.000 <br> Berlangganan Sejak <mark> 17 Juni 2024</mark>",
+"roni": "Rp.150.000 <br> Berlangganan Sejak <mark> 20 Juni 2024</mark>",
+"rasmin": "Rp.200.000 <br> Berlangganan Sejak <mark> 18 Juni 2024</mark>",
+"rokim": "Rp.150.000 <br> Berlangganan Sejak <mark> 20 Juni 2024</mark>",
+"ujang": "Rp.150.000 <br> Berlangganan Sejak <mark> 22 Juni 2024</mark>",
+"marno": "Rp.160.000 <br> Berlangganan Sejak <mark> 23 Juni 2024</mark>",
+"egi": "Rp.170.000 <br> Berlangganan Sejak <mark> 26 Juni 2024</mark>",
+"soleh": "Rp.150.000 <br> Berlangganan Sejak <mark> 26 Juni 2024</mark>",
+"rokaeni": "Rp.160.000 <br> Berlangganan Sejak <mark> 26 Juni 2024</mark>",
+"melati": "Rp.160.000 <br> Berlangganan Sejak <mark> 28 Juni 2024</mark>",
+"lilin": "Rp.160.000 <br> Berlangganan Sejak <mark> 28 Juni 2024</mark>",
+"yosi": "Rp.160.000 <br> Berlangganan Sejak <mark> 28 Juni 2024</mark>",
+"nunung": "Rp.160.000 <br> Berlangganan Sejak <mark> 28 Juni 2024</mark>",
+"opal": "Rp.160.000 <br> Berlangganan Sejak <mark> 28 Juni 2024</mark>",
+"muaya": "Rp.160.000 <br> Berlangganan Sejak <mark> 29 Juni 2024</mark>",
+"genzo": "Rp.160.000 <br> Berlangganan Sejak <mark> 29 Juni 2024</mark>",
+"nopel": "Rp.125.000 <br> Berlangganan Sejak <mark> 29 Juni 2024</mark>",
+"reja": "Rp.160.000 <br> Berlangganan Sejak <mark> 29 Juni 2024</mark>",
+"royati": "Rp.160.000 <br> Berlangganan Sejak <mark> 29 Juni 2024</mark>",
+"kacrit": "Rp.160.000 <br> Berlangganan Sejak <mark> 29 Juni 2024</mark>",
+"dayat": "Rp.160.000 <br> Berlangganan Sejak <mark> 29 Juni 2024</mark>",
+"iis": "Rp.160.000 <br> Berlangganan Sejak <mark> 29 Juni 2024</mark>",
+"fatimah": "Rp.160.000 <br> Berlangganan Sejak <mark> 30 Juni 2024</mark>",
+"kayla": "Rp.160.000 <br> Berlangganan Sejak <mark> 30 Juni 2024</mark>",
+"kapi": "Rp.160.000 <br> Berlangganan Sejak <mark> 01 Juli 2024</mark>",
+"rukun": "Rp.160.000 <br> Berlangganan Sejak <mark> 01 Juli 2024</mark>",
+"cuci": "Rp.160.000 <br> Berlangganan Sejak <mark> 01 Juli 2024</mark>",
+"suwandi": "Rp.160.000 <br> Berlangganan Sejak <mark> 01 Juli 2024</mark>",
+"atun": "Rp.160.000 <br> Berlangganan Sejak <mark> 01 Juli 2024</mark>",
+"adi(blerong)": "Rp.160.000 <br> Berlangganan Sejak <mark> 04 Juli 2024</mark>",
+"ami": "Rp.160.000 <br> Berlangganan Sejak <mark> 04 Juli 2024</mark>",
+"botak": "Rp.160.000 <br> Berlangganan Sejak <mark> 04 Juli 2024</mark>",
+"kayla perum": "Rp.200.000 <br> Berlangganan Sejak <mark> 04 Juli 2024</mark>",
+"ali": "Rp.160.000 <br> Berlangganan Sejak <mark> 04 Juli 2024</mark>",
+"rosim": "Rp.160.000 <br> Berlangganan Sejak <mark> 04 Juli 2024</mark>",
+"nurallya": "Rp.160.000 <br> Berlangganan Sejak <mark> 05 Juli 2024</mark>",
+"lisda": "Rp.160.000 <br> Berlangganan Sejak <mark> 05 Juli 2024</mark>",
+"carmudi": "Rp.160.000 <br> Berlangganan Sejak <mark> 05 Juli 2024</mark>",
+"sony": "Rp.160.000 <br> Berlangganan Sejak <mark> 09 Juli 2024</mark>",
+"punjul": "Rp.160.000 <br> Berlangganan Sejak <mark> 09 Juli 2024</mark>",
+"rapito": "Rp.160.000 <br> Berlangganan Sejak <mark> 09 Juli 2024</mark>",
+"winda": "Rp.160.000 <br> Berlangganan Sejak <mark> 09 Juli 2024</mark>",
+"dani": "Rp.160.000 <br> Berlangganan Sejak <mark> 10 Juli 2024</mark>",
+"warkini": "Rp.160.000 <br> Berlangganan Sejak <mark> 10 Juli 2024</mark>",
+"kadinah": "Rp.160.000 <br> Berlangganan Sejak <mark> 10 Juli 2024</mark>",
+"nanta": "Rp.160.000 <br> Berlangganan Sejak <mark> 10 Juli 2024</mark>",
+"darwino": "Rp.160.000 <br> Berlangganan Sejak <mark> 10 Juli 2024</mark>",
+"takur": "Rp.160.000 <br> Berlangganan Sejak <mark> 10 Juli 2024</mark>",
+"dendi": "Rp.150.000 <br> Berlangganan Sejak <mark> 10 Juli 2024</mark>",
+"yanto": "Rp.160.000 <br> Berlangganan Sejak <mark> 11 Juli 2024</mark>",
+"agus": "Rp.160.000 <br> Berlangganan Sejak <mark> 11 Juli 2024</mark>",
+"alfiyah": "Rp.160.000 <br> Berlangganan Sejak <mark> 11 Juli 2024</mark>",
+"sugiarti": "Rp.150.000 <br> Berlangganan Sejak <mark> 14 Juli 2024</mark>",
+"sokibi": "Rp.160.000 <br> Berlangganan Sejak <mark> 14 Juli 2024</mark>",
+"fadilah": "Rp.160.000 <br> Berlangganan Sejak <mark> 14 Juli 2024</mark>",
+"ferra": "Rp.160.000 <br> Berlangganan Sejak <mark> 15 Juli 2024</mark>",
+"sokidin": "Rp.160.000 <br> Berlangganan Sejak <mark> 15 Juli 2024</mark>",
+"durajaya2": "Rp.200.000 <br> Berlangganan Sejak <mark> 15 Juli 2024</mark>",
+"jari": "Rp.160.000 <br> Berlangganan Sejak <mark> 15 Juli 2024</mark>",
+" karim": "Rp.160.000 <br> Berlangganan Sejak <mark> 15 Juli 2024</mark>",
+"ambar": "Rp.160.000 <br> Berlangganan Sejak <mark> 16 Juli 2024</mark>",
+"nur(arsyil)": "Rp.160.000 <br> Berlangganan Sejak <mark> 16 Juli 2024</mark>",
+"sri blngko": "Rp.160.000 <br> Berlangganan Sejak <mark> 16 Juli 2024</mark>",
+"anto": "Rp.160.000 <br> Berlangganan Sejak <mark> 16 Juli 2024</mark>",
+"nuraini": "Rp.160.000 <br> Berlangganan Sejak <mark> 16 Juli 2024</mark>",
+"tarudin": "Rp.160.000 <br> Berlangganan Sejak <mark> 17 Juli 2024</mark>",
+"ipin": "Rp.160.000 <br> Berlangganan Sejak <mark> 17 Juli 2024</mark>",
+"taslikin": "Rp.160.000 <br> Berlangganan Sejak <mark> 19 Juli 2024</mark>",
+"amsor": "Rp.160.000 <br> Berlangganan Sejak <mark> 19 Juli 2024</mark>",
+"kaerul": "Rp.160.000 <br> Berlangganan Sejak <mark> 19 Juli 2024</mark>",
+"wasori": "Rp.160.000 <br> Berlangganan Sejak <mark> 20 Juli 2024</mark>",
+"adik": "Rp.160.000 <br> Berlangganan Sejak <mark> 20 Juli 2024</mark>",
+"taniroh": "Rp.160.000 <br> Berlangganan Sejak <mark> 20 Juli 2024</mark>",
+"trisno": "Rp.160.000 <br> Berlangganan Sejak <mark> 20 Juli 2024</mark>",
+"wulan": "Rp.160.000 <br> Berlangganan Sejak <mark> 20 Juli 2024</mark>",
+"daun": "Rp.160.000 <br> Berlangganan Sejak <mark> 20 Juli 2024</mark>",
+"ucok": "Rp.150.000 <br> Berlangganan Sejak <mark> 20 Juli 2024</mark>",
+"olos": "Rp.150.000 <br> Berlangganan Sejak <mark> 22 Juli 2024</mark>",
+"pak mantri": "Rp.150.000 <br> Berlangganan Sejak <mark> 22 Juli 2024</mark>",
+"dermawan": "Rp.160.000 <br> Berlangganan Sejak <mark> 23 Juli 2024</mark>",
+"tarinah": "Rp.160.000 <br> Berlangganan Sejak <mark> 29 Juli 2024</mark>",
+"casti": "Rp.160.000 <br> Berlangganan Sejak <mark> 29 Juli 2024</mark>",
+"suneni": "Rp.160.000 <br> Berlangganan Sejak <mark> 29 Juli 2024</mark>",
+"ratwo": "Rp.160.000 <br> Berlangganan Sejak <mark> 29 Juli 2024</mark>",
+"eti": "Rp.160.000 <br> Berlangganan Sejak <mark> 29 Juli 2024</mark>",
+"rian perum": "Rp.150.000 <br> Berlangganan Sejak <mark> 30 Juli 2024</mark>",
+"polisi karsim": "Rp.150.000 <br> Berlangganan Sejak <mark> 03 Agustus 2024</mark>",
+"jabidi": "Rp.150.000 <br> Berlangganan Sejak <mark> 02 Agustus 2024</mark>",
+"kasnur": "Rp.160.000 <br> Berlangganan Sejak <mark> 02 Agustus 2024</mark>",
+"takiman": "Rp.160.000 <br> Berlangganan Sejak <mark> 06 Agustus 2024</mark>",
+"dulbari": "Rp.160.000 <br> Berlangganan Sejak <mark> 06 Agustus 2024</mark>",
+"wuri": "Rp.160.000 <br> Berlangganan Sejak <mark> 07 Agustus 2024</mark>",
+"tanti": "Rp.160.000 <br> Berlangganan Sejak <mark> 07 Agustus 2024</mark>",
+"gandul": "Rp.200.000 <br> Berlangganan Sejak <mark> 08 Agustus 2024</mark>",
+"nuryanti": "Rp.160.000 <br> Berlangganan Sejak <mark> 08 Agustus 2024</mark>",
+"tanti": "Rp.160.000 <br> Berlangganan Sejak <mark> 10 Agustus 2024</mark>",
+"waknan": "Rp.160.000 <br> Berlangganan Sejak <mark> 10 Agustus 2024</mark>",
+"karyo denta": "Rp.160.000 <br> Berlangganan Sejak <mark> 10 Agustus 2024</mark>",
+"daklan": "Rp.160.000 <br> Berlangganan Sejak <mark> 14 Agustus 2024</mark>",
+"heru": "Rp.160.000 <br> Berlangganan Sejak <mark> 17 Agustus 2024</mark>",
+"waryono": "Rp.160.000 <br> Berlangganan Sejak <mark> 18 Agustus 2024</mark>",
+"erli": "Rp.150.000 <br> Berlangganan Sejak <mark> 18 Agustus 2024</mark>",
+"gono": "Rp.160.000 <br> Berlangganan Sejak <mark> 21 Agustus 2024</mark>",
+"anika": "Rp.160.000 <br> Berlangganan Sejak <mark> 30 Agustus 2024</mark>",
+"sukiroh": "Rp.160.000 <br> Berlangganan Sejak <mark> 30 Agustus 2024</mark>",
+"ici": "Rp.160.000 <br> Berlangganan Sejak <mark> 30 Agustus 2024</mark>",
+"rupiah": "Rp.160.000 <br> Berlangganan Sejak <mark> 30 Agustus 2024</mark>",
+"beni": "Rp.160.000 <br> Berlangganan Sejak <mark> 02 September 2024</mark>",
+"waad": "Rp.160.000 <br> Berlangganan Sejak <mark> -</mark>",
+"raniah": "Rp.160.000 <br> Berlangganan Sejak <mark> 10 September 2024</mark>",
+"anwar": "Rp.160.000 <br> Berlangganan Sejak <mark> 12 September 2024</mark>",
+"yuyun": "Rp.150.000 <br> Berlangganan Sejak <mark> 12 September 2024</mark>",
+"casrudi": "Rp.160.000 <br> Berlangganan Sejak <mark> 24 September 2024</mark>",
+"niko dewi": "Rp.160.000 <br> Berlangganan Sejak <mark> 26 September 2024</mark>",
+"kanapi": "Rp.160.000 <br> Berlangganan Sejak <mark> 30 September 2024</mark>",
+"walil": "Rp.160.000 <br> Berlangganan Sejak <mark> 01 Oktober 2024</mark>",
+"pak guru budi": "Rp.160.000 <br> Berlangganan Sejak <mark> 02 Oktober 2024</mark>",
+"iis jono": "Rp.160.000 <br> Berlangganan Sejak <mark> 05 Oktober 2024</mark>",
+"ratna perum": "Rp.160.000 <br> Berlangganan Sejak <mark> 06 Oktober 2024</mark>",
+"kandang ayam ": "Rp.160.000 <br> Berlangganan Sejak <mark> 06 Oktober 2024</mark>",
+"kndng aym dul": "Rp.160.000 <br> Berlangganan Sejak <mark> 06 Oktober 2024</mark>",
+"gunawan nopi": "Rp.160.000 <br> Berlangganan Sejak <mark> 11 Oktober 2024</mark>",
+"warso": "Rp.160.000 <br> Berlangganan Sejak <mark> 11 Oktober 2024</mark>",
+"nurjaya": "Rp.160.000 <br> Berlangganan Sejak <mark> 11 Oktober 2024</mark>",
+"edi kesem": "Rp.160.000 <br> Berlangganan Sejak <mark> 12 Oktober 2024</mark>",
+"hikmah": "Rp.160.000 <br> Berlangganan Sejak <mark> 12 Oktober 2024</mark>",
+"wasih": "Rp.160.000 <br> Berlangganan Sejak <mark> 14 Oktober 2024</mark>",
+"dail hartono": "Rp.160.000 <br> Berlangganan Sejak <mark> 16 Oktober 2024</mark>",
+"ramani": "Rp.160.000 <br> Berlangganan Sejak <mark> 17 Oktober 2024</mark>",
+"koriah": "Rp.180.000 <br> Berlangganan Sejak <mark> 17 Oktober 2024</mark>",
+"wargo": "Rp.150.000 <br> Berlangganan Sejak <mark> 17 Oktober 2024</mark>",
+"ikoh": "Rp.160.000 <br> Berlangganan Sejak <mark> 22 Oktober 2024</mark>",
+"karli mayang": "Rp.160.000 <br> Berlangganan Sejak <mark> 22 Oktober 2024</mark>",
+"bisri": "Rp.150.000 <br> Berlangganan Sejak <mark> 23 Oktober 2024</mark>",
+"secar riski": "Rp.125.000 <br> Berlangganan Sejak <mark> 26 Oktober 2024</mark>",
+"eko inara": "Rp.150.000 <br> Berlangganan Sejak <mark> 27 Oktober 2024</mark>",
+"januri": "Rp.160.000 <br> Berlangganan Sejak <mark> 01 November 2024</mark>",
+"darweti": "Rp.125.000 <br> Berlangganan Sejak <mark> 01 November 2024</mark>",
+"indri kenzo": "Rp.160.000 <br> Berlangganan Sejak <mark> 01 November 2024</mark>",
+"epi jarwo": "Rp.125.000 <br> Berlangganan Sejak <mark> 05 November 2024</mark>",
+"idris": "Rp.200.000 <br> Berlangganan Sejak <mark> 07 November 2024</mark>",
+"hendri": "Rp.160.000 <br> Berlangganan Sejak <mark> 07 November 2024</mark>",
+"nurleli": "Rp.160.000 <br> Berlangganan Sejak <mark> 11 November 2024</mark>",
+"dewi puri": "Rp.160.000 <br> Berlangganan Sejak <mark> 11 November 2024</mark>",
+"riza": "Rp.125.000 <br> Berlangganan Sejak <mark> 12 November 2024</mark>",
+"toisah": "Rp.125.000 <br> Berlangganan Sejak <mark> 17 November 2024</mark>",
+"nursiti": "Rp.150.000 <br> Berlangganan Sejak <mark> 18 November 2014</mark>",
+"titin": "Rp.160.000 <br> Berlangganan Sejak <mark> 19 November 2024</mark>",
+"toipah edi": "Rp.125.000 <br> Berlangganan Sejak <mark> 19 November 2024</mark>",
+"titin rojak": "Rp.160.000 <br> Berlangganan Sejak <mark> 25 November 2024</mark>",
+"irwan": "Rp.125.000 <br> Berlangganan Sejak <mark> 26 November 2024</mark>",
+"tariah rokman": "Rp.180.000 <br> Berlangganan Sejak <mark> 27 November 2024</mark>",
+"yani": "Rp.125.000 <br> Berlangganan Sejak <mark> 29 November 2024</mark>",
+"suci ciko": "Rp.125.000 <br> Berlangganan Sejak <mark> 13 Desember 2024</mark>",
+"ook eroh": "Rp.125.000 <br> Berlangganan Sejak <mark> 14 Desember 2024</mark>",
+"merri andani": "Rp.150.000 <br> Berlangganan Sejak <mark> 15 Desember 2024</mark>",
+"rawan dian": "Rp.160.000 <br> Berlangganan Sejak <mark> 15 Desember 2024</mark>",
+"sikin salmet": "Rp.150.000 <br> Berlangganan Sejak <mark> 19 Desember 2024</mark>",
+
+
+            
+        };
+
+        const input = document.getElementById('nama');
+        const suggestions = document.getElementById('suggestions');
+        const hasil = document.getElementById('hasil');
+
+        input.addEventListener('input', function() {
+            const keyword = this.value.toLowerCase();
+            suggestions.innerHTML = '';
+
+            if (keyword.length > 0) {
+                const matches = Object.keys(dataTagihan).filter(nama => nama.includes(keyword));
+                matches.forEach(match => {
+                    const li = document.createElement('li');
+                    li.textContent = match;
+                    li.onclick = () => {
+                        input.value = match;
+                        suggestions.innerHTML = '';
+                    };
+                    suggestions.appendChild(li);
+                });
+            }
+        });
+
+        function cekTagihan() {
+    const namaInput = input.value.trim().toLowerCase();
+    const keys = Object.keys(dataTagihan);
+    const match = keys.find(n => n.toLowerCase() === namaInput);
+
+    if (match) {
+        hasil.innerHTML = `✅ Tagihan <span style="color:blue">${match}</span>: <span style="color:green">${dataTagihan[match]}</span>`;
+    } else {
+        hasil.innerHTML = `❌ Nama <strong>${input.value}</strong> tidak ditemukan.`;
+    }
+}
+    </script>
+
+</body>
+</html>
